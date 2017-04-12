@@ -1,0 +1,72 @@
+def scan():
+    loop = 0
+    while loop < 1:
+      url = 'https://kithnyc.com/collections/footwear'
+      #webbrowser.open_new(url)
+      soucecode = requests.get(url)
+      print(soucecode)
+      text = soucecode.text
+      soup = BeautifulSoup(text)
+      #build object for shoename
+      shoename = []
+      for m in soup.findAll('img', {'class': 'product-card-image'}):
+          name = m.get('alt')
+          shoename.append(name)
+      #print(shoename)
+      #search keywords
+      for key in shoename:
+        if 'Diablo'in key.split(' '):
+
+
+
+
+
+
+
+
+              print('found')
+              print(key)
+              index = shoename.index(key)
+              #print(index)
+              #stop loop function
+              loop = 2
+              # build object for link
+              shoelist = []
+              for n in soup.findAll('a', {'class': 'product-card-image-wrapper'}):
+                  link = n.get('href')
+                  shoelink = 'https://kithnyc.com' + link
+
+                  shoelist.append(shoelink)
+              # get the shoe link from the name
+              link = shoelist[index]
+              # add to cart
+              linksouce = requests.get(link)
+              linktext = linksouce.text
+              findsize = re.compile(r'\"public_title\"\:\"\d\d?\.?\d?"')
+              findsku = re.compile(r'\"id\"\:\d{11}\,\"')
+              findinventory = re.compile(r'\"inventory_quantity\"\:\d+')
+              inventory = findinventory.findall(linktext)
+              size = findsize.findall(linktext)
+              sku = findsku.findall(linktext)
+              # input the size you want, I get 9.5 for example
+              number = size.index('"public_title":"10"')
+
+              resku = sku[number]
+              combine = zip(size, inventory)
+              for x, y in combine:
+                  print(x, y)
+
+              i = 5
+              w = ''
+              while i < 16:
+                  w += resku[i]
+                  i += 1
+              print(w)
+              addurl = "https://kithnyc.com/cart/" + w + ':1'
+              webbrowser.open_new(addurl)
+
+
+      print('not found')
+
+
+      time.sleep(0.5)
