@@ -1,0 +1,63 @@
+import requests
+from bs4 import BeautifulSoup
+import re
+import webbrowser
+import time
+import winsound
+#yeezysupply ATC
+def geturl():
+    p = 1
+    while p < 2:
+        url = "https://yeezysupply.com"
+        soucecode = requests.get(url)
+        text = soucecode.text
+        soup = BeautifulSoup(text)
+        #print(soup)
+        for a in soup.findAll('link', {'rel': 'canonical'}):
+            href = a.get('href')
+        if 'password' in href:
+            print("not live")
+            time.sleep(1)
+        # else:
+        #     p = 2
+        #     print('ready')
+        #     winsound.Beep(2500, 1000)
+        #     winsound.Beep(2500, 1000)
+        #     winsound.Beep(2500, 1000)
+        #     webbrowser.open(url)
+
+
+        else:
+            #webbrowser.open('https://yeezysupply.com/')
+            p = 2
+            url1 = 'https://yeezysupply.com/'
+            soucecode = requests.get(url1)
+            text = soucecode.text
+            soup = BeautifulSoup(text)
+            # print(soup)
+            for h in soup.findAll('meta', {'name': 'twitter:url'}):
+                head = h.get('content')
+
+            for b in soup.findAll('a', {'class': 'ProductGridItem js-link type-CALA '}):
+                href = b.get('href')
+                if '350' in href.split('-') or 'yeezy' in href.split('-'):
+                  if 'infant' not in href.split('-'):
+                    newurl = head+href
+                    print(newurl)
+                    soucecode = requests.get(newurl)
+                    text = soucecode.text
+                    findsize = re.compile(r'option1           : \"\d*\.?\d?\"')
+                    findsku = re.compile(r'id                : \d{11}')
+                    size = findsize.findall(text)
+                    sku = findsku.findall(text)
+                    #Choose Size
+                    number = size.index('option1           : \"9.5"')
+                    needsku = sku[number]
+                    i = 20
+                    realsku = ''
+                    while i < len(sku[0]):
+                        realsku += needsku[i]
+                        i += 1
+                    print(realsku)
+                    addurl = 'https://yeezysupply.com/cart/'+ realsku + ':1'
+                    webbrowser.open(addurl)
