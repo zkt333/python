@@ -3,12 +3,15 @@ from bs4 import BeautifulSoup
 import re
 import webbrowser
 import time
+import urllib.request
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 import winsound
 #yeezysupply ATC
 def geturl():
     p = 1
     while p < 2:
-        url = "https://yeezysupply.com"
+        url = "https://yeezysupply.com/products/yeezy-boost-350-v2-cream-white"
         soucecode = requests.get(url)
         text = soucecode.text
         soup = BeautifulSoup(text)
@@ -28,36 +31,55 @@ def geturl():
 
 
         else:
-            #webbrowser.open('https://yeezysupply.com/')
-            p = 2
-            url1 = 'https://yeezysupply.com/'
-            soucecode = requests.get(url1)
-            text = soucecode.text
-            soup = BeautifulSoup(text)
-            # print(soup)
-            for h in soup.findAll('meta', {'name': 'twitter:url'}):
-                head = h.get('content')
+          p = 2
+          i = 0
+          while i < 1:
+            link = []
+            for a in soup.findAll('script'):
+                #print(a)
+                link.append(a)
+            #findlink = re.compile(r'https://\w*\S*')
+            findreal = re.compile(r'https://\S*.yeezysupply\S*')
+            needlink = findreal.findall(text)
+            yeezylink = []
+            #print(needlink)
+            for key in needlink:
+                if 'yeezysupply' in key:
+                    if 'yeezy' in key or '350' in key:
+                        if 'infant' not in key:
+                           yeezylink.append(key)
+            print(yeezylink)
+            if yeezylink !=[]:
+                 winsound.Beep(2500, 1000)
+                 winsound.Beep(2500, 1000)
+                 winsound.Beep(2500, 1000)
+                 i = 2
+                 yeezy = ''
+                 j = 0
+                 while j<len(yeezylink[0])-2:
+                     yeezy+=yeezylink[0][j]
+                     j+=1
 
-            for b in soup.findAll('a', {'class': 'ProductGridItem js-link type-CALA '}):
-                href = b.get('href')
-                if '350' in href.split('-') or 'yeezy' in href.split('-'):
-                  if 'infant' not in href.split('-'):
-                    newurl = head+href
-                    print(newurl)
-                    soucecode = requests.get(newurl)
-                    text = soucecode.text
-                    findsize = re.compile(r'option1           : \"\d*\.?\d?\"')
-                    findsku = re.compile(r'id                : \d{11}')
-                    size = findsize.findall(text)
-                    sku = findsku.findall(text)
-                    #Choose Size
-                    number = size.index('option1           : \"9.5"')
-                    needsku = sku[number]
-                    i = 20
-                    realsku = ''
-                    while i < len(sku[0]):
-                        realsku += needsku[i]
-                        i += 1
-                    print(realsku)
-                    addurl = 'https://yeezysupply.com/cart/'+ realsku + ':1'
-                    webbrowser.open(addurl)
+                 #print(yeezylink[0])
+                 url1 = yeezy
+                 soucecode = requests.get(url1)
+                 text = soucecode.text
+                 print(text)
+                 findsize = re.compile(r'option1           : \"\d*\.?\d?\"')
+                 findsku = re.compile(r'id                : \d{11}')
+                 size = findsize.findall(text)
+                 sku = findsku.findall(text)
+                 #Choose Size
+                 print(size)
+                 number = size.index('option1           : \"9.5"')
+                 needsku = sku[number]
+                 i = 20
+                 realsku = ''
+                 while i < len(sku[0]):
+                     realsku += needsku[i]
+                     i += 1
+                 print(realsku)
+                 newurl = 'https://yeezysupply.com/cart/'+ realsku + ':1'
+                #webbrowser.open(newurl)
+            time.sleep(1)
+            print('wait')
