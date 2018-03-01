@@ -1,0 +1,64 @@
+def monitor():
+  try:
+    start = 0
+    i =  0
+    mail = smtplib.SMTP('smtp.gmail.com','587')
+    mail.ehlo()
+    mail.starttls()
+    mail.login('unsername','password')
+    while i < 1:
+        id = []
+        size = []
+        newarr = []
+        page = 2
+        s = requests.Session()
+        url = 'https://undefeated.com/collections/footwear'
+        # webbrowser.open_new(url)
+        soucecode = s.get(url, proxies={"https": proxy[start]})
+        print(proxy[start])
+        soup =  BeautifulSoup(soucecode.text)
+        for key in soup.findAll('meta', {'itemprop': 'url'}):
+                name = key.get('content')
+                newarr.append(name)
+        while page < 6:
+            url1 = 'https://undefeated.com/collections/footwear?page='+str(page)
+            # webbrowser.open_new(url)
+            soucecode = s.get(url1, proxies={"https": proxy[start]})
+            soup = BeautifulSoup(soucecode.text)
+            for key in soup.findAll('meta', {'itemprop': 'url'}):
+                name = key.get('content')
+                newarr.append(name)
+            page += 1
+        start += 1
+        if start == len(proxy):
+            start = 0
+        print(newarr)
+        print(len(newarr))
+        for key in newarr:
+        #key words
+         if  '98' in key:
+           if 'gs' not in key:
+            newsrturl = key
+            #webbrowser.open_new(newsrturl)
+            #content += ' "'+newsrturl+'"'
+            message = MIMEText(newsrturl, 'plain', 'utf-8')
+            message['From'] = Header('Kuntao Bot', 'utf-8')
+            message['To'] = Header('bot', 'utf-8')
+            message['Subject'] = Header('open this link', 'utf-8')
+            print(newsrturl)
+            webbrowser.open_new(newsrturl)
+            try:
+              print('success')
+              mail.sendmail('username', 'toname', message.as_string())
+              mail.close()
+            except:
+              print('send failed')
+            winsound.Beep(2500, 1000)
+            winsound.Beep(2500, 1000)
+            i = 2
+        time.sleep(1)
+        #print(soup)
+  except:
+      winsound.Beep(2500, 1000)
+      print('connection failed ,reconnectting...')
+      monitor()
