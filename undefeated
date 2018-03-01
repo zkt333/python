@@ -1,3 +1,4 @@
+proxy = [your proxies]
 def monitor():
   try:
     start = 0
@@ -15,7 +16,6 @@ def monitor():
         url = 'https://undefeated.com/collections/footwear'
         # webbrowser.open_new(url)
         soucecode = s.get(url, proxies={"https": proxy[start]})
-        print(proxy[start])
         soup =  BeautifulSoup(soucecode.text)
         for key in soup.findAll('meta', {'itemprop': 'url'}):
                 name = key.get('content')
