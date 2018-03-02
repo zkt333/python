@@ -1,0 +1,94 @@
+import re
+from bs4 import BeautifulSoup
+import requests
+import webbrowser
+import winsound
+import smtplib
+from email.mime.text import MIMEText
+from email.header import Header
+import json
+from requests.auth import HTTPProxyAuth
+import time
+
+proxy = ['your proxies']
+
+header = {'User-Agent':'Mozilla/5.0'}
+def getdetail(url):
+    s = requests.Session()
+    text = s.get(url).text
+    soup = BeautifulSoup(text)
+    keywords = []
+    for m in soup.findAll('h1', {'class': 'protect'}):
+        link = m.contents
+        keywords.append(link)
+    print(keywords[0][0])
+    if 'skull' in keywords[0][0].lower() or 'vans' in keywords[0][0].lower():
+        return 'true'
+
+
+
+def searchurl():
+ try:
+    mail = smtplib.SMTP('smtp.gmail.com', '587')
+    mail.ehlo()
+    mail.starttls()
+    mail.login('username', 'password')
+    start = 0
+    oldlink = []
+    url = 'http://www.supremenewyork.com/shop/all'
+    s = requests.Session()
+    text = s.get(url, proxies={"https": proxy[start]}).text
+    if start == len(proxy):
+        start = 0
+    soup = BeautifulSoup(text)
+    #print(soup)
+    for m in soup.findAll('a', {'style': 'height:81px;'}):
+        link = m.get('href')
+        oldlink.append(link)
+    print(oldlink)
+    print(len(oldlink))
+    while start < len(proxy):
+        shoelink = []
+        url = 'http://www.supremenewyork.com/shop/all'
+        s = requests.Session()
+        text = s.get(url, proxies={"https": proxy[start]}).text
+        if start == len(proxy):
+            start = 0
+        soup = BeautifulSoup(text)
+        for m in soup.findAll('a', {'style': 'height:81px;'}):
+            link = m.get('href')
+            shoelink.append(link)
+        print(shoelink)
+        checklink = []
+        j=0
+        while j<len(shoelink):
+            if oldlink.index(shoelink[j])<0:
+                appendlink = 'http://www.supremenewyork.com'+shoelink[j]
+                checklink.append(appendlink)
+            j += 1
+        print(checklink)
+        h = 0
+        while h <len(checklink):
+            if getdetail(checklink[h])=='true':
+                message = MIMEText(checklink[h], 'plain', 'utf-8')
+                message['From'] = Header('Kuntao Bot', 'utf-8')
+                message['To'] = Header('test for supreme', 'utf-8')
+                message['Subject'] = Header('open this link', 'utf-8')
+                print(checklink)
+                webbrowser.open_new(checklink)
+                start = 1000
+                try:
+                    print('success')
+                    mail.sendmail('from', 'to', message.as_string())
+                except:
+                    print('send failed')
+            h += 1
+        time.sleep(1.5)
+        print('not live')
+ except:
+     print(proxy[start])
+     print('ip error')
+     searchurl()
+
+
+searchurl()
